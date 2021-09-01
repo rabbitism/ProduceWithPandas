@@ -4,12 +4,14 @@
 <Title Level=2>熊猫堂二专先行曲歌名竞猜</Title>
 <Alert style="margin:10px" Type="@AlertType.Warning" Message="歌名等待揭晓" ShowIcon="true" />
 <Text>测试我的歌名</Text>
-<Search Placeholder="input search text" EnterButton="true" @bind-Value="@_testName" OnSearch="OnSearch" />
+<Search Placeholder="input search text" EnterButton="true" @bind-Value="@_testName" OnSearch="OnSearch"  />
+<p>字数：@_testName?.Length</p>
 <p>@_actualName</p>
 <Text Code>@_actualNameBytes</Text>
 <p>@_testName</p>
 <Text Code>@_testNameBytes</Text>
-<p>得分：@_cross / (@_testMod.ToString("N4") * @_actualMod.ToString("N4")) = @_result.ToString("N4")</p>
+<br/>
+<Text>得分：@_cross / (@_testMod.ToString("N4") * @_actualMod.ToString("N4")) = <Text Strong>@_result.ToString("N4") %</Text></Text>
 
 
 @code {
@@ -40,7 +42,7 @@
         _cross = GetCross(bytes1, bytes2);
         _actualMod = GetMod(bytes1);
         _testMod = GetMod(bytes2);
-        _result = _cross / _actualMod / _testMod;
+        _result = _cross * 100.0 / _actualMod / _testMod;
     }
 
     private byte[] GetBytesFromString(string s)

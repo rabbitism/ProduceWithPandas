@@ -1,28 +1,72 @@
 ﻿@using System.Text
 @page "/guessthesongname"
 
-<h3>熊猫堂二专先行曲歌名竞猜</h3>
-<p>测试我的歌名</p>
-<input @bind=@_testName/>
+<Title Level=2>熊猫堂二专先行曲歌名竞猜</Title>
+<Alert style="margin:10px" Type="@AlertType.Warning" Message="歌名等待揭晓" ShowIcon="true" />
+<Text>测试我的歌名</Text>
+<Search Placeholder="input search text" EnterButton="true" @bind-Value="@_testName" OnSearch="OnSearch" />
 <p>@_actualName</p>
-<p>@_actualNameBytes</p>
+<Text Code>@_actualNameBytes</Text>
 <p>@_testName</p>
+<Text Code>@_testNameBytes</Text>
+<p>得分：@_cross / (@_testMod.ToString("N4") * @_actualMod.ToString("N4")) = @_result.ToString("N4")</p>
+
 
 @code {
     private string? _actualName;
     private string? _actualNameBytes;
     private string? _testName;
+    private string? _testNameBytes;
+    private double _cross;
+    private double _actualMod;
+    private double _testMod;
+    private double _result;
 
     protected override Task OnInitializedAsync()
     {
         _actualName = "这只是一个十五个字的测试歌曲名";
-        _actualNameBytes = string.Join(", ", GetBytesFromString(_actualName));
+        _actualNameBytes = string.Join(", ", GetBytesFromString(_actualName).Select(a=>a.ToString("X2")));
         return base.OnInitializedAsync();
+    }
+
+    public void OnSearch(){
+        if(_testName.Length!=15){
+            return;
+        }
+        byte[] bytes1 = GetBytesFromString(_actualName);
+        byte[] bytes2 = GetBytesFromString(_testName);
+        _actualNameBytes=  string.Join(", ", bytes1.Select(a=>a.ToString("X2")));
+        _testNameBytes = string.Join(", ", bytes2.Select(a => a.ToString("X2")));
+        _cross = GetCross(bytes1, bytes2);
+        _actualMod = GetMod(bytes1);
+        _testMod = GetMod(bytes2);
+        _result = _cross / _actualMod / _testMod;
     }
 
     private byte[] GetBytesFromString(string s)
     {
         return Encoding.Unicode.GetBytes(s);
+    }
+
+    private double GetMod(byte[] bytes)
+    {
+        double result = 0;
+        foreach(byte b in bytes)
+        {
+            result += (1.0 * b * b);
+        }
+        return Math.Sqrt(result);
+    }
+
+    private double GetCross(byte[] bytes1, byte[] bytes2)
+    {
+        double result = 0;
+        int length = Math.Min(bytes1.Length, bytes2.Length);
+        for(int i = 0; i< length; i++)
+        {
+            result += (1.0 * bytes1[i] * bytes2[i]);
+        }
+        return result;
     }
 
 }

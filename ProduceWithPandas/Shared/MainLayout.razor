@@ -1,6 +1,6 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="page">
+@*<div class="page">
     <div class="sidebar">
         <NavMenu />
     </div>
@@ -14,4 +14,15 @@
             @Body
         </article>
     </main>
+</div>*@
+<div class="page">
+    <Layout Style="min-height: 100vh;">
+        <Sider Theme="SiderTheme.Light">
+            <NavMenu></NavMenu>
+        </Sider>
+        <Content>
+            @Body
+        </Content>
+    </Layout>
 </div>
+

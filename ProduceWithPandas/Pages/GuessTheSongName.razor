@@ -1,74 +1,29 @@
 ﻿@using System.Text
+@using ProduceWithPandas.Models;
 @page "/guessthesongname"
 
 <Title Level=2>熊猫堂二专先行曲歌名竞猜</Title>
 <Alert style="margin:10px" Type="@AlertType.Warning" Message="歌名等待揭晓" ShowIcon="true" />
-<Text>测试我的歌名</Text>
-<Search Placeholder="input search text" EnterButton="true" @bind-Value="@_testName" OnSearch="OnSearch"  />
-<p>字数：@_testName?.Length</p>
-<p>@_actualName</p>
-<Text Code>@_actualNameBytes</Text>
-<p>@_testName</p>
-<Text Code>@_testNameBytes</Text>
+<Text>测试我的歌名 (字数：@_testName?.Length / 15 )</Text>
+<div style="max-width: 500px">
+    <Search Placeholder="请输入歌名" EnterButton="@("开始计算")" @bind-Value="@_testName" OnSearch="OnSearch" />
+</div>
+<br/>
+<br/>
+<Paragraph>@_actualName <Text Code>@_actualNameBytes</Text></Paragraph>
+<Paragraph>@_testName <Text Code>@_testNameBytes</Text></Paragraph>
 <br/>
 <Text>得分：@_cross / (@_testMod.ToString("N4") * @_actualMod.ToString("N4")) = <Text Strong>@_result.ToString("N4") %</Text></Text>
+<br />
+<br />
+<Button Type="@ButtonType.Primary" OnClick=@OnClick >查看当前排行</Button>
 
-
-@code {
-    private string? _actualName;
-    private string? _actualNameBytes;
-    private string? _testName;
-    private string? _testNameBytes;
-    private double _cross;
-    private double _actualMod;
-    private double _testMod;
-    private double _result;
-
-    protected override Task OnInitializedAsync()
-    {
-        _actualName = "这只是一个十五个字的测试歌曲名";
-        _actualNameBytes = string.Join(", ", GetBytesFromString(_actualName).Select(a=>a.ToString("X2")));
-        return base.OnInitializedAsync();
-    }
-
-    public void OnSearch(){
-        if(_testName.Length!=15){
-            return;
-        }
-        byte[] bytes1 = GetBytesFromString(_actualName);
-        byte[] bytes2 = GetBytesFromString(_testName);
-        _actualNameBytes=  string.Join(", ", bytes1.Select(a=>a.ToString("X2")));
-        _testNameBytes = string.Join(", ", bytes2.Select(a => a.ToString("X2")));
-        _cross = GetCross(bytes1, bytes2);
-        _actualMod = GetMod(bytes1);
-        _testMod = GetMod(bytes2);
-        _result = _cross * 100.0 / _actualMod / _testMod;
-    }
-
-    private byte[] GetBytesFromString(string s)
-    {
-        return Encoding.Unicode.GetBytes(s);
-    }
-
-    private double GetMod(byte[] bytes)
-    {
-        double result = 0;
-        foreach(byte b in bytes)
-        {
-            result += (1.0 * b * b);
-        }
-        return Math.Sqrt(result);
-    }
-
-    private double GetCross(byte[] bytes1, byte[] bytes2)
-    {
-        double result = 0;
-        int length = Math.Min(bytes1.Length, bytes2.Length);
-        for(int i = 0; i< length; i++)
-        {
-            result += (1.0 * bytes1[i] * bytes2[i]);
-        }
-        return result;
-    }
-
-}
+<Table
+    TItem="GuessSongRecord"
+    DataSource="@_records"
+    Loading=@_loading
+    >
+    <Column @bind-Field="@(context.Name)"></Column>
+    <Column @bind-Field="@(context.Answer)"></Column>
+    <Column @bind-Field="@(context.Score)"></Column>
+</Table>

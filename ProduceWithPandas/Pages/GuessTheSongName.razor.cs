@@ -119,10 +119,18 @@ public partial class GuessTheSongName : ComponentBase
             }
             foreach(var record in _replies)
             {
-                string answer = record.Answer.Trim();
+                string? answer = record.Answer?.Trim();
                 if(answer != null && answer.StartsWith("歌名是：") && answer.Length>=19)
                 {
-                    string actualAnswer = answer.Substring(4, 15);
+                    string actualAnswer = string.Empty;
+                    if (answer.Length == 15)
+                    {
+                        actualAnswer = answer;
+                    }
+                    else if(answer.StartsWith("歌名是：") && answer.Length >= 19)
+                    {
+                        actualAnswer = answer.Substring(4, 15);
+                    }
                     byte[] bytes1 = GetBytesFromString(_actualName);
                     byte[] bytes2 = GetBytesFromString(actualAnswer);
                     record.Score = 100.0 * GetCross(bytes1, bytes2) / GetMod(bytes1) / GetMod(bytes2);

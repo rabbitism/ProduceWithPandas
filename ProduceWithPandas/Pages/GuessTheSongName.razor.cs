@@ -18,8 +18,9 @@ public partial class GuessTheSongName : ComponentBase
     private double _actualMod;
     private double _testMod;
     private double _result;
-    private List<GuessSongRecord> _records;
+    private List<DoubanReply> _records;
     private bool _loading;
+    private DateTime _lastRefreshTime;
     [Inject] HttpClient Client { get; set; }
 
     public GuessTheSongName()
@@ -28,7 +29,7 @@ public partial class GuessTheSongName : ComponentBase
         _actualNameBytes = string.Empty;
         _testName = string.Empty;
         _testNameBytes = string.Empty;
-        _records = new List<GuessSongRecord>();
+        _records = new List<DoubanReply>();
 
         _actualName = "这只是一个十五个字的测试歌曲名";
         _actualNameBytes = string.Join(", ", GetBytesFromString(_actualName).Select(a => a.ToString("X2")));
@@ -90,20 +91,43 @@ public partial class GuessTheSongName : ComponentBase
     {
         var api = @"https://rabbitism.com/api/api/doubanpost/244506252";
         _loading = true;
-        var results= await Client.GetFromJsonAsync<List<GuessSongRecord>>(api);
+        var results= await Client.GetFromJsonAsync<DoubanPostCache>(api);
+        
         if (results != null)
         {
+            _lastRefreshTime = results.LastUpdateDate;
             _records.Clear();
-            _records.AddRange(results);
+            Dictionary<int, List<DoubanReply>> _userMap = new Dictionary<int, List<DoubanReply>>();
+            results.Replies.OrderBy(a => a.PublishTime);
+            foreach(var reply in results.Replies)
+            {
+                if (!_userMap.ContainsKey(reply.UserId))
+                {
+                    _userMap[reply.UserId] = new List<DoubanReply>();
+                }
+                if (_userMap[reply.UserId].Count >= 3)
+                {
+                    continue;
+                }
+                _userMap[reply.UserId].Add(reply);
+            }
+
+            List<DoubanReply> _replies = new List<DoubanReply>();
+            foreach(var value in _userMap.Values)
+            {
+                _replies.AddRange(value);
+            }
             foreach(var record in _records)
             {
-                if (record.Answer.Length > 15)
+                string answer = record.Answer.Trim();
+                if(answer != null && answer.StartsWith("歌名是：") && answer.Length>=19)
                 {
-                    record.Answer = record.Answer.Substring(0, 15);
+                    string actualAnswer = answer.Substring(4, 15);
+                    byte[] bytes1 = GetBytesFromString(_actualName);
+                    byte[] bytes2 = GetBytesFromString(record.Answer);
+                    record.Score = 100.0 * GetCross(bytes1, bytes2) / GetMod(bytes1) / GetMod(bytes2);
+                    _records.Add(record);
                 }
-                byte[] bytes1 = GetBytesFromString(_actualName);
-                byte[] bytes2 = GetBytesFromString(record.Answer);
-                record.Score = GetCross(bytes1, bytes2) / GetMod(bytes1) / GetMod(bytes2);
             }
             _records = _records.OrderByDescending(a => a.Score).ToList();
         }

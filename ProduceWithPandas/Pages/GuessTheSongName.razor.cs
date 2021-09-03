@@ -31,7 +31,7 @@ public partial class GuessTheSongName : ComponentBase
         _testNameBytes = string.Empty;
         _records = new List<DoubanReply>();
 
-        _actualName = "这只是一个十五个字的测试歌曲名";
+        _actualName = "从前有座山山里有座庙庙里有熊猫";
         _actualNameBytes = string.Join(", ", GetBytesFromString(_actualName).Select(a => a.ToString("X2")));
     }
 
@@ -117,21 +117,21 @@ public partial class GuessTheSongName : ComponentBase
             {
                 _replies.AddRange(value);
             }
-            foreach(var record in _records)
+            foreach(var record in _replies)
             {
                 string answer = record.Answer.Trim();
                 if(answer != null && answer.StartsWith("歌名是：") && answer.Length>=19)
                 {
                     string actualAnswer = answer.Substring(4, 15);
                     byte[] bytes1 = GetBytesFromString(_actualName);
-                    byte[] bytes2 = GetBytesFromString(record.Answer);
+                    byte[] bytes2 = GetBytesFromString(actualAnswer);
                     record.Score = 100.0 * GetCross(bytes1, bytes2) / GetMod(bytes1) / GetMod(bytes2);
+                    record.Answer = actualAnswer;
                     _records.Add(record);
                 }
             }
             _records = _records.OrderByDescending(a => a.Score).ToList();
         }
-
         _loading = false;
         StateHasChanged();
     }

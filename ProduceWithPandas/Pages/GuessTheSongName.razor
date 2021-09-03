@@ -17,13 +17,16 @@
 <br />
 <br />
 <Button Type="@ButtonType.Primary" OnClick=@OnClick >查看当前排行</Button>
-
+<Text>上次更新时间： @_lastRefreshTime.ToString("yyyy-MM-dd HH:mm:ss")</Text>
 <Table
     TItem="DoubanReply"
     DataSource="@_records"
     Loading=@_loading
     >
-    <Column @bind-Field="@(context.Name)"></Column>
-    <Column @bind-Field="@(context.Answer)"></Column>
-    <Column @bind-Field="@(context.Score)"></Column>
+    <Column Title="ID" @bind-Field="@(context.UserId)"></Column>
+    <Column Title="豆瓣ID" @bind-Field="@(context.Name)"></Column>
+    <Column Title="答案" @bind-Field="@(context.Answer)"></Column>
+    <Column Title="得分" @bind-Field="@(context.Score)">
+        <Text Code>@context.Score.ToString("N2")</Text>
+    </Column>
 </Table>

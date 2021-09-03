@@ -120,7 +120,7 @@ public partial class GuessTheSongName : ComponentBase
             foreach(var record in _replies)
             {
                 string? answer = record.Answer?.Trim();
-                if(answer != null && answer.StartsWith("歌名是：") && answer.Length>=19)
+                if(answer != null)
                 {
                     string actualAnswer = string.Empty;
                     if (answer.Length == 15)
@@ -130,6 +130,10 @@ public partial class GuessTheSongName : ComponentBase
                     else if(answer.StartsWith("歌名是：") && answer.Length >= 19)
                     {
                         actualAnswer = answer.Substring(4, 15);
+                    }
+                    else
+                    {
+                        continue;
                     }
                     byte[] bytes1 = GetBytesFromString(_actualName);
                     byte[] bytes2 = GetBytesFromString(actualAnswer);

@@ -127,6 +127,10 @@ public partial class GuessTheSongName : ComponentBase
                     {
                         actualAnswer = answer;
                     }
+                    else if (answer.Length==17 && answer.StartsWith("《") && answer.EndsWith("》"))
+                    {
+                        actualAnswer = answer.Substring(1, 15);
+                    }
                     else if(answer.StartsWith("歌名是：") && answer.Length >= 19)
                     {
                         actualAnswer = answer.Substring(4, 15);

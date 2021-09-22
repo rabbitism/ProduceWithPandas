@@ -31,7 +31,7 @@ public partial class GuessTheSongName : ComponentBase
         _testNameBytes = string.Empty;
         _records = new List<DoubanReply>();
 
-        _actualName = "从前有座山山里有座庙庙里有熊猫";
+        _actualName = "就算与全世界为敌也要跟你在一起";
         _actualNameBytes = string.Join(", ", GetBytesFromString(_actualName).Select(a => a.ToString("X2")));
     }
 
@@ -119,6 +119,10 @@ public partial class GuessTheSongName : ComponentBase
             }
             foreach(var record in _replies)
             {
+                if(record.PublishTime>=new DateTime(2021, 09, 21))
+                {
+                    continue;
+                }
                 string? answer = record.Answer?.Trim();
                 if(answer != null)
                 {

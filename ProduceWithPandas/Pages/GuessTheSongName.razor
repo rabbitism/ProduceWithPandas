@@ -29,4 +29,7 @@
     <Column Title="得分" @bind-Field="@(context.Score)">
         <Text Code>@context.Score.ToString("N2")</Text>
     </Column>
+    <Column Title="日期" @bind-Field="@(context.PublishTime)">
+        <Text Code>@context.PublishTime.ToString("yyyy-MM-dd")</Text>
+    </Column>
 </Table>
